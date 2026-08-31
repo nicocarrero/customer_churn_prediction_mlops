@@ -1,0 +1,96 @@
+name: Quality & Unit Tests
+
+on:
+  push:
+    branches: [ main, master, develop, 'feature/**' ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar herramientas
+        run: pip install black flake8
+
+      - name: Black (formato - informativo)
+        continue-on-error: true
+        run: black --check src/ tests/
+
+      - name: Flake8 (linting - informativo)
+        continue-on-error: true
+        run: flake8 src/ tests/ --max-line-length=100
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements/api.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Instalar dependencias
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements/api.txt
+          pip install pytest pytest-cov
+
+      - name: Descargar modelo con DVC
+        env:
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+        run: |
+          pip install dvc
+
+          dvc remote modify origin --local auth basic
+          dvc remote modify origin --local user carreronicoo
+          dvc remote modify origin --local password $DAGSHUB_TOKEN
+
+          dvc pull
+          
+      - name: Ejecutar tests unitarios
+        run: |
+          pytest tests/test_preprocessing.py tests/test_api.py tests/test_modelo.py -v \
+            --cov=src --cov-report=xml --cov-report=term-missing
+
+      - name: Subir cobertura
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-xml
+          path: coverage.xml
+
+  dvc-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar DVC
+        run: pip install dvc
+
+      - name: Validar archivos .dvc
+        run: |
+          test -f data/raw/churn_sintetico.csv.dvc || (echo "Falta data/raw/churn_sintetico.csv.dvc" && exit 1)
+          test -f models/model_pipeline.joblib.dvc || (echo "Falta models/model_pipeline.joblib.dvc" && exit 1)
+          echo "Archivos .dvc presentes"
+
+      - name: Chequear consistencia DVC
+        run: dvc status || echo "DVC status reporto diferencias (esperable sin remote configurado)"

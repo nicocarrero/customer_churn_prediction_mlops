@@ -1,0 +1,117 @@
+name: Integration — MLOps End-to-End
+
+on:
+  pull_request:
+    branches: [ main, master ]
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Descargar modelo con DVC
+        env:
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+        run: |
+          pip install dvc
+          dvc remote modify origin --local auth basic
+          dvc remote modify origin --local user carreronicoo
+          dvc remote modify origin --local password ${{ secrets.DAGSHUB_TOKEN }}
+          dvc pull
+
+      - name: Build API
+        run: docker build -f docker/Dockerfile.api -t churn-api:latest .
+
+      - name: Build Streamlit
+        run: docker build -f docker/Dockerfile.streamlit -t churn-streamlit:latest .
+
+      - name: Build Evidently
+        run: docker build -f docker/Dockerfile.evidently -t churn-evidently:latest .
+
+      - name: Build Traffic Generator
+        run: docker build -f docker/Dockerfile.traffic -t churn-traffic:latest .
+
+      - name: Validar docker-compose
+        run: docker compose config > /dev/null
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Descargar modelo con DVC
+        env:
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+        run: |
+          pip install dvc
+          dvc remote modify origin --local auth basic
+          dvc remote modify origin --local user carreronicoo
+          dvc remote modify origin --local password $DAGSHUB_TOKEN 
+          dvc pull
+
+      - name: Levantar stack completo
+        run: docker compose up -d --build
+
+      - name: Esperar servicios
+        run: |
+          echo "Esperando API..."
+          for i in {1..30}; do
+            curl -sf http://localhost:8000/health && echo "API OK" && break
+            sleep 2
+          done
+          
+          echo "Esperando Evidently..."
+          for i in {1..30}; do
+            curl -sf http://localhost:8001/health && echo "Evidently OK" && break
+            sleep 2
+          done
+
+      - name: Test API endpoints
+        run: |
+          echo "Health check:"
+          curl -sf http://localhost:8000/health || exit 1
+          
+          echo "Predict:"
+          curl -sf -X POST http://localhost:8000/predict \
+            -H "Content-Type: application/json" \
+            -d '{"tenure_months":12,"monthly_charge":65.5,"total_charges":786.0,"support_tickets":1,"late_payments":0,"avg_monthly_usage_gb":95.3,"contract_type":"anual","payment_method":"debito","internet_service":"fibra","has_streaming":1,"has_security_pack":0,"num_products":2,"region":"centro","customer_age":35,"is_promo":0}' || exit 1
+          
+          echo "Metrics Prometheus:"
+          curl -sf http://localhost:8000/metrics | grep "api_requests_total" || exit 1
+
+      - name: Test Evidently
+        run: |
+          echo "Evidently health:"
+          curl -sf http://localhost:8001/health || exit 1
+          
+          echo "Evidently metrics:"
+          curl -sf http://localhost:8001/metrics | grep "mlops_drifted_features_ratio" || exit 1
+
+      - name: Test Streamlit
+        run: |
+          curl -sf http://localhost:8501 || echo "Streamlit no responde en / (puede ser normal)"
+
+      - name: Test Prometheus
+        run: |
+          echo "Prometheus targets:"
+          curl -sf http://localhost:9090/api/v1/targets | grep "churn_api" || exit 1
+
+      - name: Ejecutar tests de integracion
+        run: |
+          pip install pytest requests
+          pytest tests/test_integration.py -v --tb=short
+
+      - name: Logs si fallo
+        if: failure()
+        run: docker compose logs --tail=100
+
+      - name: Limpiar contenedores
+        if: always()
+        run: docker compose down -v

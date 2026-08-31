@@ -1,0 +1,15 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements/ ./requirements/
+RUN pip install --no-cache-dir -r requirements/traffic.txt
+
+COPY src/ ./src/
+COPY data/ ./data/
+
+ENV API_URL=http://api:8000
+ENV BATCH_SIZE=10
+ENV REFERENCE_PATH=data/raw/churn_sintetico.csv
+
+CMD ["python", "-m", "src.monitoring.traffic_generator"]

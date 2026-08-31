@@ -1,0 +1,5 @@
+evidently==0.7.21
+pandas==2.3.3
+fastapi==0.136.3
+uvicorn==0.48.0
+prometheus-client==0.25.0

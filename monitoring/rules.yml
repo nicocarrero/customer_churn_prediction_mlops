@@ -1,0 +1,119 @@
+groups:
+  - name: churn_api_alerts
+    rules:
+
+      # -------------------------------------------------------------
+      # Disponibilidad
+      # -------------------------------------------------------------
+      - alert: APIDown
+        expr: up{job="churn_api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          categoria: disponibilidad
+        annotations:
+          summary: "La API de churn no responde"
+          description: >
+            Prometheus no pudo scrapear el target 'churn_api' durante al
+            menos 1 minuto.
+
+      - alert: ModelUnavailable
+        expr: model_availability == 0
+        for: 1m
+        labels:
+          severity: critical
+          categoria: disponibilidad
+        annotations:
+          summary: "El modelo no esta cargado en la API"
+          description: >
+            La API esta arriba pero no logro cargar el modelo desde MLflow.
+
+      - alert: EvidentlyExporterDown
+        expr: up{job="evidently_exporter"} == 0
+        for: 1m
+        labels:
+          severity: warning
+          categoria: monitoreo
+        annotations:
+          summary: "El exporter de Evidently no responde"
+          description: >
+            Prometheus no pudo scrapear el servicio de Evidently.
+
+      # -------------------------------------------------------------
+      # Latencia
+      # -------------------------------------------------------------
+      - alert: HighRequestLatencyP95
+        expr: >
+          histogram_quantile(0.95,
+            sum by (endpoint, le) (rate(api_request_latency_seconds_bucket[5m]))
+          ) > 1
+        for: 2m
+        labels:
+          severity: warning
+          categoria: latencia
+        annotations:
+          summary: "Latencia p95 alta en {{ $labels.endpoint }}"
+          description: >
+            El percentil 95 de latencia supera 1 segundo.
+
+      - alert: HighModelInferenceLatency
+        expr: >
+          histogram_quantile(0.95, rate(model_inference_duration_seconds_bucket[5m])) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+          categoria: latencia
+        annotations:
+          summary: "Tiempo de inferencia anormalmente alto"
+          description: >
+            El p95 del tiempo de inferencia pura supera 0.5s.
+
+      # -------------------------------------------------------------
+      # Errores
+      # -------------------------------------------------------------
+      - alert: HighErrorRate
+        expr: >
+          (sum(rate(api_request_errors_total[5m])) / sum(rate(api_requests_total[5m]))) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          categoria: errores
+        annotations:
+          summary: "Tasa de error de la API por encima del 5%"
+          description: >
+            Mas del 5% de los requests terminaron en error.
+
+      # -------------------------------------------------------------
+      # Data Drift
+      # -------------------------------------------------------------
+      - alert: DataDriftDetected
+        expr: mlops_drifted_features_ratio > 0.30
+        for: 2m
+        labels:
+          severity: warning
+          categoria: drift
+        annotations:
+          summary: "Data drift detectado en mas del 30% de las features"
+          description: >
+            Evidently detecto drift. Accion sugerida: revisar origen de datos
+            y evaluar reentrenamiento del modelo.
+
+      # -------------------------------------------------------------
+      # Data Quality
+      # -------------------------------------------------------------
+      #- alert: HighMissingValues
+      #"Alta proporcion de valores faltantes" - NULOS
+
+      #- alert: HighOutOfRangeValues
+      #"Valores fuera de rango detectados"
+
+      - alert: EvidentlyReportFailed
+        expr: mlops_evidently_report_success == 0
+        for: 1m
+        labels:
+          severity: critical
+          categoria: monitoreo
+        annotations:
+          summary: "El exporter de Evidently fallo"
+          description: >
+            Revisar logs del contenedor 'evidently' y disponibilidad de datos.

@@ -1,0 +1,19 @@
+# -------------------------------------------------------
+# Dockerfile.evidently — Exporter de métricas Evidently
+# -------------------------------------------------------
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements/ ./requirements/
+RUN pip install --no-cache-dir -r requirements/monitoring.txt
+
+COPY src/ ./src/
+
+ENV REFERENCE_PATH=data/raw/churn_sintetico.csv
+ENV CURRENT_PATH=data/processed/current_data.csv
+ENV RUN_INTERVAL=30
+
+EXPOSE 8001
+
+CMD ["uvicorn", "src.monitoring.evidently_exporter:app", "--host", "0.0.0.0", "--port", "8001"]

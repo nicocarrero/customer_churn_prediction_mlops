@@ -1,0 +1,145 @@
+services:
+
+  # -------------------------------------------------------
+  # API de inferencia — FastAPI
+  # -------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: churn_api
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_PATH=models/model_pipeline.joblib
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - churn_net
+
+  # -------------------------------------------------------
+  # GUI — Streamlit
+  # -------------------------------------------------------
+  gui:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.streamlit
+    container_name: churn_gui
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - churn_net
+
+  # -------------------------------------------------------
+  # Traffic Generator — simulador de ingesta
+  # -------------------------------------------------------
+  traffic:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.traffic
+    container_name: churn_traffic
+    environment:
+      - API_URL=http://api:8000
+      - BATCH_SIZE=10
+      - REFERENCE_PATH=data/raw/churn_sintetico.csv
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - churn_net
+  # -------------------------------------------------------
+  # Evidently — Exporter de métricas de drift y calidad
+  # -------------------------------------------------------
+  evidently:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.evidently
+    container_name: churn_evidently
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    environment:
+      - REFERENCE_PATH=data/raw/churn_sintetico.csv
+      - CURRENT_PATH=data/processed/current_data.csv
+      - MODEL_PATH=models/model_pipeline.joblib
+      - RUN_INTERVAL=30
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8001/health')\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - churn_net
+
+  # -------------------------------------------------------
+  # Prometheus — recoleccion de metricas
+  # -------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: churn_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/rules.yml:/etc/prometheus/rules.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    depends_on:
+      - api
+      - evidently
+    restart: unless-stopped
+    networks:
+      - churn_net
+
+  # -------------------------------------------------------
+  # Grafana — dashboards de monitoreo
+  # -------------------------------------------------------
+  grafana:
+    image: grafana/grafana:latest
+    container_name: churn_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/mlops_dashboard.json
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./monitoring/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - churn_net
+
+networks:
+  churn_net:
+    driver: bridge
+
+volumes:
+  grafana_data:
+  prometheus_data:
