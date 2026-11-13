@@ -1,58 +1,60 @@
-# Customer Churn Prediction — End-to-End MLOps
+# Predicción de Churn de Clientes — MLOps de punta a punta
 
-End-to-end Machine Learning and MLOps project focused on predicting customer churn and building a complete system for training, deployment, testing and monitoring.
+[Read in English](README.md)
 
-The project implements the complete ML lifecycle:
+Proyecto de Machine Learning y MLOps de punta a punta para predecir la baja de clientes (*churn*) y construir un sistema completo de entrenamiento, despliegue, pruebas y monitoreo.
 
-**Data → Preprocessing → Feature Engineering → Model Training → Experiment Tracking → API → Deployment → Monitoring**
+El proyecto implementa el ciclo de vida completo de ML:
 
----
-
-## 📌 Project Overview
-
-The objective is to predict whether a customer is likely to churn and provide a production-oriented system capable of serving predictions and monitoring both the API and model behavior.
-
-The project includes:
-
-* Exploratory Data Analysis (EDA)
-* Data preprocessing and feature engineering
-* Comparison of Logistic Regression, Random Forest and XGBoost
-* Hyperparameter tuning
-* Experiment tracking with MLflow
-* Data and model versioning with DVC
-* Model serialization
-* REST API with FastAPI
-* Interactive GUI with Streamlit
-* Docker and Docker Compose deployment
-* Automated testing with Pytest
-* API monitoring with Prometheus
-* Data drift detection with Evidently
-* Monitoring dashboards with Grafana
-* Automated alerts for system and model-related issues
+**Datos → Preprocesamiento → Feature Engineering → Entrenamiento → Seguimiento de experimentos → API → Despliegue → Monitoreo**
 
 ---
 
-## 📊 Model Performance
+## 📌 Descripción general
 
-The final model is a **Logistic Regression with L1 regularization and class weighting**.
+El objetivo es predecir si un cliente tiene probabilidad de abandonar el servicio y ofrecer un sistema orientado a producción, capaz de servir predicciones y de monitorear tanto la API como el comportamiento del modelo.
 
-| Metric            |     Value |
+El proyecto incluye:
+
+* Análisis exploratorio de datos (EDA)
+* Preprocesamiento y feature engineering
+* Comparación de Regresión Logística, Random Forest y XGBoost
+* Ajuste de hiperparámetros
+* Seguimiento de experimentos con MLflow
+* Versionado de datos y modelos con DVC
+* Serialización del modelo
+* API REST con FastAPI
+* Interfaz interactiva con Streamlit
+* Despliegue con Docker y Docker Compose
+* Pruebas automatizadas con Pytest
+* Monitoreo de la API con Prometheus
+* Detección de data drift con Evidently
+* Dashboards de monitoreo con Grafana
+* Alertas automáticas ante problemas del sistema y del modelo
+
+---
+
+## 📊 Rendimiento del modelo
+
+El modelo final es una **Regresión Logística con regularización L1 y ponderación de clases**.
+
+| Métrica           |     Valor |
 | ----------------- | --------: |
 | Accuracy          | **0.741** |
-| Precision (Churn) | **0.604** |
+| Precisión (Churn) | **0.604** |
 | Recall (Churn)    | **0.694** |
 | F1 Score          | **0.646** |
 | ROC-AUC           | **0.798** |
 
-The final model was selected after evaluating and comparing multiple Machine Learning approaches.
+El modelo final se seleccionó tras evaluar y comparar varios enfoques de Machine Learning.
 
-### Confusion Matrix
+### Matriz de confusión
 
-![Confusion Matrix](models/confusion_matrix.png)
+![Matriz de confusión](models/confusion_matrix.png)
 
 ---
 
-## 🏗️ Project Architecture
+## 🏗️ Arquitectura del proyecto
 
 ```text
                     ┌─────────────────┐
@@ -99,27 +101,27 @@ The final model was selected after evaluating and comparing multiple Machine Lea
 
 ---
 
-## 🗂️ Repository Structure
+## 🗂️ Estructura del repositorio
 
 ```text
 customer-churn-prediction/
 ├── .github/
 ├── data/
-│   ├── raw/                        # Raw dataset
-│   └── processed/                  # Processed datasets
+│   ├── raw/                        # Dataset crudo
+│   └── processed/                  # Datasets procesados
 ├── docker/
 │   ├── Dockerfile.api
 │   ├── Dockerfile.streamlit
 │   ├── Dockerfile.evidently
 │   └── Dockerfile.traffic
-├── models/                         # Trained model and metrics
+├── models/                         # Modelo entrenado y métricas
 ├── monitoring/
 │   ├── prometheus.yml
 │   ├── rules.yml
 │   └── provisioning/
 ├── notebooks/
-│   └── notebook.ipynb              # EDA and experimentation
-├── reports/                        # Technical reports and evidence
+│   └── notebook.ipynb              # EDA y experimentación
+├── reports/                        # Informes técnicos y evidencias
 ├── requirements/
 │   ├── api.txt
 │   ├── streamlit.txt
@@ -153,7 +155,7 @@ customer-churn-prediction/
 
 ---
 
-# 🛠️ Technologies
+# 🛠️ Tecnologías
 
 ### Machine Learning
 
@@ -170,18 +172,18 @@ customer-churn-prediction/
 * Docker
 * Docker Compose
 
-### Deployment
+### Despliegue
 
 * FastAPI
 * Streamlit
 
-### Monitoring
+### Monitoreo
 
 * Prometheus
 * Grafana
 * Evidently
 
-### Testing & Development
+### Pruebas y desarrollo
 
 * Pytest
 * Jupyter
@@ -189,40 +191,40 @@ customer-churn-prediction/
 
 ---
 
-# 🚀 Getting Started
+# 🚀 Primeros pasos
 
-## Requirements
+## Requisitos
 
-The following tools are required:
+Se necesitan las siguientes herramientas:
 
-* **Anaconda or Miniconda**
+* **Anaconda o Miniconda**
 * **Docker**
 * **Docker Compose**
 * **Git**
 
-Docker is required for deployment and monitoring. Conda is used for training, notebooks, DVC and local testing.
+Docker es necesario para el despliegue y el monitoreo. Conda se usa para el entrenamiento, los notebooks, DVC y las pruebas locales.
 
 ---
 
-## Installation
+## Instalación
 
-### 1. Clone the repository
+### 1. Clonar el repositorio
 
 ```bash
 git clone https://github.com/nicocarrero/customer-churn-prediction.git
 cd customer-churn-prediction
 ```
 
-### 2. Create the Conda environment
+### 2. Crear el entorno de Conda
 
 ```bash
 conda env create -f environment.yml
 conda activate proyecto_ml
 ```
 
-### 3. Configure DVC
+### 3. Configurar DVC
 
-Configure the DVC remote credentials locally:
+Configurar localmente las credenciales del remoto de DVC:
 
 ```bash
 dvc remote modify origin --local auth basic
@@ -230,15 +232,15 @@ dvc remote modify origin --local user TU_USUARIO_DAGSHUB
 dvc remote modify origin --local password TU_TOKEN_DAGSHUB
 ```
 
-> Credentials are configured locally and should never be committed to the repository.
+> Las credenciales se configuran de forma local y nunca deben subirse al repositorio.
 
-### 4. Download data and model artifacts
+### 4. Descargar datos y artefactos del modelo
 
 ```bash
 dvc pull
 ```
 
-This downloads the required datasets and model artifacts, including:
+Esto descarga los datasets y artefactos del modelo necesarios, entre ellos:
 
 * `data/raw/churn_sintetico.csv`
 * `data/processed/data_final.csv`
@@ -246,37 +248,37 @@ This downloads the required datasets and model artifacts, including:
 
 ---
 
-# 🧠 Training
+# 🧠 Entrenamiento
 
-Training requires the Conda environment:
+El entrenamiento requiere el entorno de Conda:
 
 ```bash
 conda activate proyecto_ml
 ```
 
-## Run the training pipeline
+## Ejecutar el pipeline de entrenamiento
 
 ```bash
 python src/main.py
 ```
 
-The pipeline performs:
+El pipeline realiza:
 
-1. Data preprocessing
+1. Preprocesamiento de datos
 2. Feature engineering
-3. Model training
-4. Model evaluation
-5. Model serialization
-6. Metrics generation
-7. Confusion matrix generation
+3. Entrenamiento del modelo
+4. Evaluación del modelo
+5. Serialización del modelo
+6. Generación de métricas
+7. Generación de la matriz de confusión
 
-The trained model is saved to:
+El modelo entrenado se guarda en:
 
 ```text
 models/model_pipeline.joblib
 ```
 
-Metrics are saved to:
+Las métricas se guardan en:
 
 ```text
 models/metrics.json
@@ -284,18 +286,18 @@ models/metrics.json
 
 ---
 
-## 🔬 Exploratory Data Analysis
+## 🔬 Análisis exploratorio de datos
 
-The project includes a Jupyter notebook containing:
+El proyecto incluye un notebook de Jupyter con:
 
-* Exploratory Data Analysis
-* Data preprocessing
-* Feature analysis
-* Model comparison
+* Análisis exploratorio de datos
+* Preprocesamiento
+* Análisis de variables
+* Comparación de modelos
 * Feature engineering
-* Model evaluation
+* Evaluación del modelo
 
-Run it with:
+Para ejecutarlo:
 
 ```bash
 jupyter lab notebooks/notebook.ipynb
@@ -303,31 +305,31 @@ jupyter lab notebooks/notebook.ipynb
 
 ---
 
-## 📈 Experiment Tracking with MLflow
+## 📈 Seguimiento de experimentos con MLflow
 
-Experiments are tracked using **MLflow** and stored in DagsHub.
+Los experimentos se registran con **MLflow** y se almacenan en DagsHub.
 
-The project evaluates:
+El proyecto evalúa:
 
-* Logistic Regression
+* Regresión Logística
 * Random Forest
 * XGBoost
 
-Experiments can be consulted directly from the browser:
+Los experimentos se pueden consultar desde el navegador:
 
 https://dagshub.com/carreronicoo/proyecto_ml.mlflow/
 
-### Evidence
+### Evidencias
 
-**Experiment comparison in MLflow**
+**Comparación de experimentos en MLflow**
 
 ![MLflow](reports/mlflow.jpg)
 
-**Confusion matrix of the final model**
+**Matriz de confusión del modelo final**
 
-![Confusion Matrix](models/confusion_matrix.png)
+![Matriz de confusión](models/confusion_matrix.png)
 
-The confusion matrices generated for the evaluated models are available in:
+Las matrices de confusión generadas para los modelos evaluados están en:
 
 ```text
 reports/cm_exp_*.png
@@ -335,51 +337,51 @@ reports/cm_exp_*.png
 
 ---
 
-# 🌐 Deployment
+# 🌐 Despliegue
 
-The application can be deployed using **Docker Compose**.
+La aplicación se despliega con **Docker Compose**.
 
-The API loads the trained model from:
+La API carga el modelo entrenado desde:
 
 ```text
 models/model_pipeline.joblib
 ```
 
-The model is included in the API Docker image during the build.
+El modelo se incluye en la imagen Docker de la API durante el build.
 
-## Start API + GUI
+## Levantar API + GUI
 
 ```bash
 docker compose up --build api gui
 ```
 
-### Services
+### Servicios
 
-| Service    | URL                        |
+| Servicio   | URL                        |
 | ---------- | -------------------------- |
 | FastAPI    | http://localhost:8000      |
 | Swagger UI | http://localhost:8000/docs |
 | Streamlit  | http://localhost:8501      |
 
-Stop the services:
+Para detener los servicios:
 
 ```bash
 docker compose down
 ```
 
-The Streamlit GUI communicates with the FastAPI service through the internal Docker network.
+La interfaz de Streamlit se comunica con el servicio FastAPI a través de la red interna de Docker.
 
 ---
 
 # 🔌 API
 
-The REST API is built with **FastAPI**.
+La API REST está construida con **FastAPI**.
 
 ## `POST /predict`
 
-Receives customer information and returns a churn prediction, probability and risk level.
+Recibe los datos de un cliente y devuelve la predicción de churn, la probabilidad y el nivel de riesgo.
 
-### Example request
+### Ejemplo de solicitud
 
 ```json
 {
@@ -401,7 +403,7 @@ Receives customer information and returns a churn prediction, probability and ri
 }
 ```
 
-### Example response
+### Ejemplo de respuesta
 
 ```json
 {
@@ -411,63 +413,63 @@ Receives customer information and returns a churn prediction, probability and ri
 }
 ```
 
-Risk levels:
+Niveles de riesgo:
 
-* **Low:** `< 0.35`
-* **Medium:** `0.35 – 0.65`
-* **High:** `> 0.65`
-
----
-
-## API Endpoints
-
-| Method | Endpoint         | Description                           |
-| ------ | ---------------- | ------------------------------------- |
-| GET    | `/health`        | Service health and model availability |
-| POST   | `/predict`       | Individual prediction                 |
-| POST   | `/predict/batch` | Batch predictions                     |
-| GET    | `/schema`        | Customer input schema                 |
-| GET    | `/metrics`       | Prometheus metrics                    |
-
-If the model is unavailable, `/predict` and `/predict/batch` return HTTP `503`.
+* **Bajo:** `< 0.35`
+* **Medio:** `0.35 – 0.65`
+* **Alto:** `> 0.65`
 
 ---
 
-# 🧪 Testing
+## Endpoints de la API
 
-Unit tests require the Conda environment:
+| Método | Endpoint         | Descripción                                  |
+| ------ | ---------------- | -------------------------------------------- |
+| GET    | `/health`        | Estado del servicio y disponibilidad del modelo |
+| POST   | `/predict`       | Predicción individual                        |
+| POST   | `/predict/batch` | Predicciones por lote                        |
+| GET    | `/schema`        | Esquema de entrada del cliente               |
+| GET    | `/metrics`       | Métricas de Prometheus                       |
+
+Si el modelo no está disponible, `/predict` y `/predict/batch` devuelven HTTP `503`.
+
+---
+
+# 🧪 Pruebas
+
+Las pruebas unitarias requieren el entorno de Conda:
 
 ```bash
 conda activate proyecto_ml
 ```
 
-Run the tests:
+Ejecutar las pruebas:
 
 ```bash
 pytest tests/test_api.py tests/test_modelo.py tests/test_preprocessing.py -v
 ```
 
-### Integration test
+### Prueba de integración
 
-The integration test requires Docker Compose to be running:
+La prueba de integración requiere que Docker Compose esté corriendo:
 
 ```bash
 docker compose up -d api gui
 ```
 
-Then:
+Luego:
 
 ```bash
 pytest tests/test_integration.py -v
 ```
 
-### Evidence
+### Evidencias
 
 **Docker Compose — API + GUI**
 
 ![Docker Compose](reports/docker_logs.jpg)
 
-**Streamlit GUI**
+**Interfaz de Streamlit**
 
 ![Streamlit](reports/gui.jpg)
 
@@ -481,36 +483,36 @@ pytest tests/test_integration.py -v
 
 ---
 
-# 📡 Monitoring
+# 📡 Monitoreo
 
-The project implements a complete monitoring stack using:
+El proyecto implementa un stack de monitoreo completo con:
 
 * Prometheus
 * Grafana
 * Evidently
 
-The monitoring system tracks both **application performance** and **Machine Learning behavior**.
+El sistema de monitoreo supervisa tanto el **rendimiento de la aplicación** como el **comportamiento del modelo de Machine Learning**.
 
 ---
 
-## Start the complete system
+## Levantar el sistema completo
 
 ```bash
 docker compose up --build
 ```
 
-This starts:
+Esto inicia:
 
 * API
 * Streamlit
-* Traffic Generator
+* Generador de tráfico
 * Evidently Exporter
 * Prometheus
 * Grafana
 
-### Services
+### Servicios
 
-| Service            | URL                           |
+| Servicio           | URL                           |
 | ------------------ | ----------------------------- |
 | FastAPI            | http://localhost:8000         |
 | Streamlit          | http://localhost:8501         |
@@ -520,29 +522,29 @@ This starts:
 
 ---
 
-## 🚦 Traffic Generator
+## 🚦 Generador de tráfico
 
-The traffic generator simulates customer requests against `/predict`.
+El generador de tráfico simula solicitudes de clientes contra `/predict`.
 
-It samples the original dataset and can inject controlled synthetic data drift using:
+Toma muestras del dataset original y puede inyectar data drift sintético controlado mediante la variable:
 
 ```text
 DATA_DRIFT_PROB
 ```
 
-The generated data is stored in:
+Los datos generados se guardan en:
 
 ```text
 data/processed/current_data.csv
 ```
 
-Evidently uses this dataset as the current production-like dataset for drift analysis.
+Evidently usa este dataset como el conjunto "actual", similar a producción, para el análisis de drift.
 
 ---
 
-## 📊 API Metrics
+## 📊 Métricas de la API
 
-The API exposes Prometheus metrics such as:
+La API expone métricas de Prometheus como:
 
 * `api_requests_total`
 * `api_request_latency_seconds`
@@ -555,9 +557,9 @@ The API exposes Prometheus metrics such as:
 
 ---
 
-## 🔎 Evidently Metrics
+## 🔎 Métricas de Evidently
 
-The Evidently exporter exposes metrics including:
+El exporter de Evidently expone métricas como:
 
 * `mlops_drifted_features_ratio`
 * `mlops_feature_drift_score{feature=...}`
@@ -568,38 +570,38 @@ The Evidently exporter exposes metrics including:
 
 ---
 
-## 🚨 Alerts
+## 🚨 Alertas
 
-Prometheus alert rules are defined in:
+Las reglas de alerta de Prometheus están definidas en:
 
 ```text
 monitoring/rules.yml
 ```
 
-The project includes alerts for:
+El proyecto incluye alertas para:
 
-| Alert                       | Condition                    |
-| --------------------------- | ---------------------------- |
-| `APIDown`                   | API unavailable for 1 minute |
-| `ModelUnavailable`          | Model not loaded             |
-| `EvidentlyExporterDown`     | Exporter unavailable         |
-| `HighRequestLatencyP95`     | HTTP p95 latency > 1s        |
-| `HighModelInferenceLatency` | Model inference p95 > 0.5s   |
-| `HighErrorRate`             | Error rate > 5%              |
-| `DataDriftDetected`         | >30% of features show drift  |
-| `EvidentlyReportFailed`     | Evidently analysis failure   |
+| Alerta                      | Condición                                     |
+| --------------------------- | --------------------------------------------- |
+| `APIDown`                   | API no disponible durante 1 minuto            |
+| `ModelUnavailable`          | Modelo no cargado                             |
+| `EvidentlyExporterDown`     | Exporter no disponible                        |
+| `HighRequestLatencyP95`     | Latencia HTTP p95 > 1 s                       |
+| `HighModelInferenceLatency` | Inferencia del modelo p95 > 0.5 s             |
+| `HighErrorRate`             | Tasa de errores > 5%                          |
+| `DataDriftDetected`         | Drift en más del 30% de las variables         |
+| `EvidentlyReportFailed`     | Falla en el análisis de Evidently             |
 
 ---
 
-# 📊 Grafana Dashboard
+# 📊 Dashboard de Grafana
 
-Grafana is automatically provisioned with the Prometheus datasource and the MLOps dashboard.
+Grafana se aprovisiona automáticamente con la fuente de datos de Prometheus y el dashboard de MLOps.
 
-No manual configuration is required.
+No requiere configuración manual.
 
-### Evidence
+### Evidencias
 
-**Grafana Dashboard**
+**Dashboard de Grafana**
 
 ![Grafana](reports/grafana.jpg)
 
@@ -609,35 +611,35 @@ No manual configuration is required.
 
 ---
 
-## 📈 Evidently Report
+## 📈 Reporte de Evidently
 
-The monitoring process compares:
+El proceso de monitoreo compara:
 
 ```text
-Reference dataset:
+Dataset de referencia:
 data/raw/churn_sintetico.csv
 
-Current dataset:
+Dataset actual:
 data/processed/current_data.csv
 ```
 
-Evidently analyzes the differences between both datasets and publishes the results as Prometheus metrics.
+Evidently analiza las diferencias entre ambos datasets y publica los resultados como métricas de Prometheus.
 
-The exporter executes the analysis periodically according to:
+El exporter ejecuta el análisis periódicamente según la variable:
 
 ```text
 RUN_INTERVAL
 ```
 
-The default interval is **30 seconds**.
+El intervalo por defecto es de **30 segundos**.
 
 ---
 
-# 📚 Additional Documentation
+# 📚 Documentación adicional
 
-For more detailed information about the implementation:
+Para más detalle sobre la implementación:
 
-* **Technical Report:** `reports/INFORME_TECNICO.md`
-* **Exploratory Notebook:** `notebooks/notebook.ipynb`
+* **Informe técnico:** `reports/INFORME_TECNICO.md`
+* **Notebook exploratorio:** `notebooks/notebook.ipynb`
 
 ---
