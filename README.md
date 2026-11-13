@@ -1,6 +1,6 @@
 # Predicción de Churn de Clientes — MLOps de punta a punta
 
-[Read in English](README.md)
+[Read in English](README.en.md)
 
 Proyecto de Machine Learning y MLOps de punta a punta para predecir la baja de clientes (*churn*) y construir un sistema completo de entrenamiento, despliegue, pruebas y monitoreo.
 
